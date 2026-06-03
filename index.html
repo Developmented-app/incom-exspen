@@ -1,0 +1,1232 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ប្រព័ន្ធគ្រប់គ្រងចំណូល ចំណាយ និងភាគលាភ</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts (Kantumruy Pro & Hanuman for Khmer) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Hanuman:wght@400;700&family=Kantumruy+Pro:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Custom Style Settings -->
+    <style>
+        body {
+            font-family: 'Kantumruy Pro', 'Hanuman', sans-serif;
+        }
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            .print-only {
+                display: block !important;
+            }
+            body {
+                background-color: white;
+                color: black;
+            }
+        }
+        .tab-btn.active {
+            background-color: rgb(55 48 163); /* indigo-800 */
+            color: white;
+        }
+        .mobile-tab-btn.active {
+            color: rgb(79 70 229); /* indigo-600 */
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen pb-12">
+
+    <!-- Navigation Header -->
+    <header class="bg-indigo-900 text-white shadow-md sticky top-0 z-50 no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-3">
+                    <div class="p-2 bg-indigo-700 rounded-lg">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="text-lg font-bold tracking-wider">ប្រព័ន្ធហិរញ្ញវត្ថុ & ភាគលាភ</h1>
+                        <p class="text-xs text-indigo-200 font-light">Financial & Dividend AI Assistant</p>
+                    </div>
+                </div>
+                <nav class="hidden md:flex space-x-2">
+                    <button onclick="switchTab('dashboard')" id="btn-dashboard" class="tab-btn active px-3 py-2 rounded-md text-sm font-medium text-indigo-200 hover:text-white hover:bg-indigo-800">ផ្ទាំងគ្រប់គ្រង</button>
+                    <button onclick="switchTab('transactions')" id="btn-transactions" class="tab-btn px-3 py-2 rounded-md text-sm font-medium text-indigo-200 hover:text-white hover:bg-indigo-800">ចំណូល-ចំណាយ</button>
+                    <button onclick="switchTab('shareholders')" id="btn-shareholders" class="tab-btn px-3 py-2 rounded-md text-sm font-medium text-indigo-200 hover:text-white hover:bg-indigo-800">ភាគហ៊ុនិក</button>
+                    <button onclick="switchTab('dividend')" id="btn-dividend" class="tab-btn px-3 py-2 rounded-md text-sm font-medium text-indigo-200 hover:text-white hover:bg-indigo-800">ការបែងចែកភាគលាភ</button>
+                    <button onclick="switchTab('reports')" id="btn-reports" class="tab-btn px-3 py-2 rounded-md text-sm font-medium text-indigo-200 hover:text-white hover:bg-indigo-800">របាយការណ៍</button>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Bottom Navigation for Mobile -->
+    <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 shadow-lg flex justify-around py-2 md:hidden z-50 no-print">
+        <button onclick="switchTab('dashboard')" class="mobile-tab-btn active flex flex-col items-center text-slate-400" id="mbtn-dashboard">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2v-4zM14 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2v-4z"></path></svg>
+            <span class="text-[10px] mt-1">ផ្ទាំងគ្រប់គ្រង</span>
+        </button>
+        <button onclick="switchTab('transactions')" class="mobile-tab-btn flex flex-col items-center text-slate-400" id="mbtn-transactions">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+            <span class="text-[10px] mt-1">ចំណូល-ចំណាយ</span>
+        </button>
+        <button onclick="switchTab('shareholders')" class="mobile-tab-btn flex flex-col items-center text-slate-400" id="mbtn-shareholders">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+            <span class="text-[10px] mt-1">ភាគហ៊ុនិក</span>
+        </button>
+        <button onclick="switchTab('dividend')" class="mobile-tab-btn flex flex-col items-center text-slate-400" id="mbtn-dividend">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <span class="text-[10px] mt-1">ភាគលាភ</span>
+        </button>
+        <button onclick="switchTab('reports')" class="mobile-tab-btn flex flex-col items-center text-slate-400" id="mbtn-reports">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 12v-6m-9-3H9m12 0h-3.586l-1.414-1.414A1 1 0 0010 8H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2v-7a2 2 0 00-2-2h-3.586z"></path></svg>
+            <span class="text-[10px] mt-1">របាយការណ៍</span>
+        </button>
+    </div>
+
+    <!-- Alert / Toast Notification Container -->
+    <div id="toast-container" class="fixed top-20 right-4 z-50 flex flex-col gap-2 pointer-events-none no-print"></div>
+
+    <!-- Main Content Layout -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24 md:pb-8">
+
+        <!-- ==================== TAB 1: DASHBOARD ==================== -->
+        <section id="tab-dashboard" class="tab-content space-y-6">
+            <!-- Summary Stats Card Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-white rounded-xl p-6 shadow-sm border border-slate-100 flex items-center justify-between">
+                    <div>
+                        <p class="text-xs text-slate-400 uppercase font-bold">ចំណូលសរុប (Income)</p>
+                        <h3 class="text-2xl font-bold text-emerald-600 mt-1" id="stat-income">$0.00</h3>
+                        <span class="text-xs text-emerald-500 font-semibold" id="stat-income-count">0 ប្រតិបត្តិការ</span>
+                    </div>
+                    <div class="p-4 bg-emerald-50 rounded-full text-emerald-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl p-6 shadow-sm border border-slate-100 flex items-center justify-between">
+                    <div>
+                        <p class="text-xs text-slate-400 uppercase font-bold">ចំណាយសរុប (Expense)</p>
+                        <h3 class="text-2xl font-bold text-rose-600 mt-1" id="stat-expense">$0.00</h3>
+                        <span class="text-xs text-rose-500 font-semibold" id="stat-expense-count">0 ប្រតិបត្តិការ</span>
+                    </div>
+                    <div class="p-4 bg-rose-50 rounded-full text-rose-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0v-8m0 8l-8-8-4 4-6-6"></path></svg>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl p-6 shadow-sm border border-slate-100 flex items-center justify-between">
+                    <div>
+                        <p class="text-xs text-slate-400 uppercase font-bold">ប្រាក់ចំណេញសុទ្ធ (Profit)</p>
+                        <h3 class="text-2xl font-bold text-indigo-600 mt-1" id="stat-profit">$0.00</h3>
+                        <span class="text-xs text-indigo-500 font-semibold">ចំណូលដកចំណាយ</span>
+                    </div>
+                    <div class="p-4 bg-indigo-50 rounded-full text-indigo-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl p-6 shadow-sm border border-slate-100 flex items-center justify-between">
+                    <div>
+                        <p class="text-xs text-slate-400 uppercase font-bold">ប្រាក់បម្រុង (Undistributed)</p>
+                        <h3 class="text-2xl font-bold text-amber-600 mt-1" id="stat-dividend">$0.00</h3>
+                        <span class="text-xs text-amber-500 font-semibold" id="stat-dividend-count">ចំណេញមិនទាន់បែងចែក</span>
+                    </div>
+                    <div class="p-4 bg-amber-50 rounded-full text-amber-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Financial Insights Button & Box -->
+            <div class="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-2xl p-6 border border-indigo-100 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                <div class="space-y-1">
+                    <h3 class="text-lg font-bold text-indigo-950 flex items-center gap-2">
+                        <span>✨ វិភាគហិរញ្ញវត្ថុ និងយោបល់យុទ្ធសាស្ត្រពី AI</span>
+                    </h3>
+                    <p class="text-sm text-indigo-800">ស្វែងយល់ពីចំណុចខ្លាំង ហានិភ័យ និងអនុសាសន៍ផែនការលូតលាស់ពីបញ្ញាសិប្បនិម្មិត Gemini ដោយផ្អែកលើទិន្នន័យជាក់ស្តែងរបស់អ្នក។</p>
+                </div>
+                <button onclick="getAIFinancialInsights()" id="btn-ai-insights" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-xl text-sm flex items-center gap-2 shadow-md transition-all shrink-0">
+                    <svg class="w-5 h-5 animate-pulse text-yellow-300" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"></path></svg>
+                    ✨ វិភាគដោយ AI
+                </button>
+            </div>
+
+            <!-- Container for AI Insight output -->
+            <div id="ai-insight-result-box" class="hidden bg-white p-6 rounded-2xl border border-slate-100 shadow-sm space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                    <div class="flex items-center gap-2">
+                        <span class="p-1.5 bg-indigo-50 rounded-lg text-indigo-600">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
+                        </span>
+                        <h4 class="font-bold text-slate-800 text-md">របាយការណ៍វិភាគ និងអនុសាសន៍យុទ្ធសាស្ត្រ</h4>
+                    </div>
+                    <button onclick="document.getElementById('ai-insight-result-box').classList.add('hidden')" class="text-slate-400 hover:text-slate-600">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
+                <!-- Loading Skeleton -->
+                <div id="ai-insight-loading" class="hidden space-y-3">
+                    <div class="h-4 bg-slate-100 rounded-full w-3/4 animate-pulse"></div>
+                    <div class="h-4 bg-slate-100 rounded-full w-5/6 animate-pulse"></div>
+                    <div class="h-4 bg-slate-100 rounded-full w-2/3 animate-pulse"></div>
+                </div>
+                <!-- Generated Text Content -->
+                <div id="ai-insight-text" class="text-sm text-slate-700 leading-relaxed space-y-3 whitespace-pre-line"></div>
+            </div>
+
+            <!-- Graphs & Breakdown Section -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Financial Trend Line Chart -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 lg:col-span-2">
+                    <h4 class="text-slate-700 font-bold mb-4 text-sm sm:text-base">និន្នាការហិរញ្ញវត្ថុប្រចាំខែ (Monthly Trend)</h4>
+                    <div class="relative h-64 sm:h-80 w-full">
+                        <canvas id="trendChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Shareholder Shares & Category Distribution Pie Charts -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 flex flex-col justify-between">
+                    <div>
+                        <h4 class="text-slate-700 font-bold mb-4 text-sm">សមាមាត្រភាគហ៊ុន (%)</h4>
+                        <div class="relative h-48 w-full flex items-center justify-center">
+                            <canvas id="sharesChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="border-t border-slate-100 pt-4 mt-4">
+                        <div class="flex justify-between text-xs font-semibold text-slate-500">
+                            <span>ចំនួនភាគហ៊ុនិកសរុប៖</span>
+                            <span id="dash-shareholders-count" class="text-indigo-600">0 នាក់</span>
+                        </div>
+                        <div class="flex justify-between text-xs font-semibold text-slate-500 mt-2">
+                            <span>ភាគរយភាគហ៊ុនរួមគ្នា៖</span>
+                            <span id="dash-shares-percent" class="text-indigo-600">0%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Transactions Table -->
+            <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
+                <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+                    <h4 class="text-slate-700 font-bold text-sm sm:text-base">ប្រតិបត្តិការថ្មីៗ (Recent Transactions)</h4>
+                    <button onclick="switchTab('transactions')" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800 flex items-center gap-1">
+                        មើលទាំងអស់
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50 text-slate-500 text-xs font-bold uppercase border-b border-slate-100">
+                                <th class="py-3 px-6">កាលបរិច្ឆេទ</th>
+                                <th class="py-3 px-6">បរិយាយ</th>
+                                <th class="py-3 px-6">ប្រភេទ</th>
+                                <th class="py-3 px-6">ក្រុម</th>
+                                <th class="py-3 px-6 text-right">ទឹកប្រាក់</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recent-transactions-list" class="divide-y divide-slate-100 text-sm">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== TAB 2: TRANSACTIONS ==================== -->
+        <section id="tab-transactions" class="tab-content hidden space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Add/Edit Transaction & AI Input Box -->
+                <div class="space-y-6 h-fit">
+                    
+                    <!-- AI Smart Input Field -->
+                    <div class="bg-gradient-to-br from-indigo-900 to-purple-900 text-white p-5 rounded-2xl shadow-md border border-indigo-950 space-y-3">
+                        <h4 class="text-sm font-bold flex items-center gap-2 text-yellow-300">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                            បញ្ចូលទិន្នន័យរហ័សដោយ AI ✨
+                        </h4>
+                        <p class="text-xs text-indigo-200">សរសេរជាភាសាខ្មែរធម្មតា រួចចុចវិភាគបំពេញទម្រង់ស្វ័យប្រវត្ត។</p>
+                        <div class="space-y-2">
+                            <textarea id="ai-natural-text" rows="2" placeholder="ឧ៖ ទិញកាហ្វេនិងនំប៉័ងអស់ ១៥ដុល្លារ សម្រាប់ប្រជុំបុគ្គលិកពីម្សិលមិញ..." class="w-full bg-indigo-950/60 border border-indigo-700/80 rounded-xl px-3 py-2 text-xs text-white placeholder-indigo-300/60 focus:outline-none focus:ring-2 focus:ring-indigo-400"></textarea>
+                            <button onclick="parseTransactionWithAI()" id="btn-ai-parse" class="w-full bg-yellow-400 hover:bg-yellow-500 text-indigo-950 font-bold py-2 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all shadow">
+                                <svg class="w-4 h-4 animate-spin hidden" id="ai-parse-spinner" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                <span>✨ វិភាគបំពេញទិន្នន័យដោយ AI</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Main Form -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                        <h3 id="form-transaction-title" class="text-md font-bold text-slate-800 mb-4 flex items-center gap-2">
+                            <span class="p-1.5 bg-indigo-50 text-indigo-600 rounded-md">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            </span>
+                            កត់ត្រាប្រតិបត្តិការហិរញ្ញវត្ថុ
+                        </h3>
+                        <form id="transaction-form" onsubmit="saveTransaction(event)" class="space-y-4">
+                            <input type="hidden" id="tx-id">
+                            
+                            <div>
+                                <label class="block text-xs font-bold text-slate-600 mb-1">ប្រភេទប្រតិបត្តិការ *</label>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <label class="border-2 border-emerald-500 bg-emerald-50/50 rounded-lg p-3 flex items-center justify-center gap-2 cursor-pointer transition-all hover:bg-emerald-50" id="label-income">
+                                        <input type="radio" name="tx-type" value="income" checked onchange="toggleFormStyles()" class="text-emerald-600 focus:ring-emerald-500">
+                                        <span class="text-sm font-bold text-emerald-700">ចំណូល (Income)</span>
+                                    </label>
+                                    <label class="border-2 border-slate-200 rounded-lg p-3 flex items-center justify-center gap-2 cursor-pointer transition-all hover:bg-rose-50" id="label-expense">
+                                        <input type="radio" name="tx-type" value="expense" onchange="toggleFormStyles()" class="text-rose-600 focus:ring-rose-500">
+                                        <span class="text-sm font-bold text-slate-600" id="text-expense-label">ចំណាយ (Expense)</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label for="tx-desc" class="block text-xs font-bold text-slate-600 mb-1">ការបរិយាយ / ឈ្មោះទំនិញ *</label>
+                                <input type="text" id="tx-desc" required placeholder="ឧ. លក់ផលិតផល A, បង់ថ្លៃទឹក-ភ្លើង" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label for="tx-amount" class="block text-xs font-bold text-slate-600 mb-1">ទឹកប្រាក់ ($) *</label>
+                                    <input type="number" id="tx-amount" step="0.01" min="0.01" required placeholder="0.00" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                </div>
+                                <div>
+                                    <label for="tx-date" class="block text-xs font-bold text-slate-600 mb-1">កាលបរិច្ឆេទ *</label>
+                                    <input type="date" id="tx-date" required class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label for="tx-category" class="block text-xs font-bold text-slate-600 mb-1">ប្រភេទក្រុម (Category) *</label>
+                                <select id="tx-category" required class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                    <!-- Populated dynamically by JS -->
+                                </select>
+                            </div>
+
+                            <div class="flex gap-2 pt-2">
+                                <button type="submit" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg text-sm transition-all shadow-sm">
+                                    រក្សាទុកទិន្នន័យ
+                                </button>
+                                <button type="button" onclick="resetTransactionForm()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold py-2 px-4 rounded-lg text-sm transition-all">
+                                    សម្អាត
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Transaction History Table -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 lg:col-span-2 flex flex-col justify-between">
+                    <div>
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                            <h3 class="text-lg font-bold text-slate-800">បញ្ជីប្រតិបត្តិការហិរញ្ញវត្ថុ</h3>
+                            
+                            <!-- Search & Category Filters -->
+                            <div class="flex flex-wrap gap-2">
+                                <input type="text" id="tx-search" oninput="renderTransactions()" placeholder="ស្វែងរក..." class="border border-slate-200 rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                <select id="tx-filter-type" onchange="renderTransactions()" class="border border-slate-200 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                    <option value="all">ទាំងអស់</option>
+                                    <option value="income">តែចំណូល</option>
+                                    <option value="expense">តែចំណាយ</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-50 text-slate-500 text-xs font-bold uppercase border-b border-slate-100">
+                                        <th class="py-3 px-4">កាលបរិច្ឆេទ</th>
+                                        <th class="py-3 px-4">បរិយាយ</th>
+                                        <th class="py-3 px-4">ក្រុម</th>
+                                        <th class="py-3 px-4 text-right">ទឹកប្រាក់</th>
+                                        <th class="py-3 px-4 text-center">សកម្មភាព</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="transactions-list" class="divide-y divide-slate-100 text-sm">
+                                    <!-- Populated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== TAB 3: SHAREHOLDERS ==================== -->
+        <section id="tab-shareholders" class="tab-content hidden space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Add/Edit Shareholder Form -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 h-fit">
+                    <h3 id="form-shareholder-title" class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                        <span class="p-1.5 bg-indigo-50 text-indigo-600 rounded-md">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m4 2a8 8 0 11-18 0 8 8 0 0118 0z"></path></svg>
+                        </span>
+                        ចុះឈ្មោះភាគហ៊ុនិកថ្មី
+                    </h3>
+                    <form id="shareholder-form" onsubmit="saveShareholder(event)" class="space-y-4">
+                        <input type="hidden" id="sh-id">
+                        
+                        <div>
+                            <label for="sh-name" class="block text-xs font-bold text-slate-600 mb-1">ឈ្មោះភាគហ៊ុនិក *</label>
+                            <input type="text" id="sh-name" required placeholder="ឧ. លោក សុខ ជា" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+
+                        <div>
+                            <label for="sh-share" class="block text-xs font-bold text-slate-600 mb-1">ភាគរយភាគហ៊ុន (%) *</label>
+                            <input type="number" id="sh-share" step="0.01" min="0.01" max="100" required placeholder="0.00 %" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <p class="text-[10px] text-slate-400 mt-1">សំគាល់៖ ភាគហ៊ុនសរុបរបស់ភាគហ៊ុនិកទាំងអស់រួមគ្នាត្រូវតែស្មើ ១០០% ដើម្បីអាចបែងចែកភាគលាភបាន។</p>
+                        </div>
+
+                        <div>
+                            <label for="sh-phone" class="block text-xs font-bold text-slate-600 mb-1">លេខទូរស័ព្ទ (ជាជម្រើស)</label>
+                            <input type="text" id="sh-phone" placeholder="ឧ. 012 345 678" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+
+                        <div class="flex gap-2 pt-2">
+                            <button type="submit" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg text-sm transition-all shadow-sm">
+                                រក្សាទុកភាគហ៊ុនិក
+                            </button>
+                            <button type="button" onclick="resetShareholderForm()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold py-2 px-4 rounded-lg text-sm transition-all">
+                                សម្អាត
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Shareholders List Card -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 lg:col-span-2 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-lg font-bold text-slate-800">បញ្ជីភាគហ៊ុនិក & ចំណែកភាគហ៊ុន</h3>
+                            <div class="bg-slate-100 px-3 py-1 rounded-full text-xs font-bold text-indigo-700">
+                                ភាគហ៊ុនសរុប៖ <span id="sh-total-shares-badge">0%</span>
+                            </div>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-50 text-slate-500 text-xs font-bold uppercase border-b border-slate-100">
+                                        <th class="py-3 px-4">ឈ្មោះភាគហ៊ុនិក</th>
+                                        <th class="py-3 px-4">លេខទូរស័ព្ទ</th>
+                                        <th class="py-3 px-4 text-right">ភាគហ៊ុន (%)</th>
+                                        <th class="py-3 px-4 text-center">សកម្មភាព</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="shareholders-list" class="divide-y divide-slate-100 text-sm">
+                                    <!-- Populated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== TAB 4: DIVIDEND ==================== -->
+        <section id="tab-dividend" class="tab-content hidden space-y-6">
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 max-w-4xl mx-auto">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="p-2 bg-amber-100 text-amber-600 rounded-lg">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-800">ការបែងចែកភាគលាភ (Dividend Distribution)</h2>
+                        <p class="text-sm text-slate-500">គណនា និងបែងចែកប្រាក់ចំណេញទៅកាន់ភាគហ៊ុនិកតាមភាគរយជាក់ស្តែង។</p>
+                    </div>
+                </div>
+
+                <div class="bg-indigo-50 border border-indigo-100 rounded-xl p-6 mb-6">
+                    <div class="flex flex-col md:flex-row justify-between md:items-end gap-4">
+                        <div class="space-y-1">
+                            <label class="block text-sm font-bold text-indigo-900">ប្រាក់ចំណេញមិនទាន់បែងចែកសរុប (Undistributed Profit)</label>
+                            <p class="text-3xl font-bold text-indigo-700" id="div-available-profit">$0.00</p>
+                        </div>
+                        <div class="w-full md:w-1/3">
+                            <label class="block text-xs font-bold text-indigo-800 mb-1">ចំនួនទឹកប្រាក់ចង់បែងចែកជុំនេះ ($) *</label>
+                            <div class="flex gap-2">
+                                <input type="number" id="div-amount" step="0.01" min="0.01" class="w-full border border-indigo-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                <button onclick="calculateDividend()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg text-sm transition-all whitespace-nowrap">
+                                    គណនា
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Preview Table -->
+                <div id="div-preview-section" class="hidden">
+                    <h3 class="font-bold text-slate-700 mb-3">លទ្ធផលនៃការបែងចែក៖</h3>
+                    <div class="overflow-x-auto mb-4 border border-slate-200 rounded-lg">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-50 text-slate-600 text-xs font-bold uppercase border-b border-slate-200">
+                                    <th class="py-3 px-4">ឈ្មោះភាគហ៊ុនិក</th>
+                                    <th class="py-3 px-4 text-center">ភាគរយភាគហ៊ុន</th>
+                                    <th class="py-3 px-4 text-right">ទឹកប្រាក់ទទួលបាន ($)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="div-preview-list" class="divide-y divide-slate-100 text-sm">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                            <tfoot class="bg-slate-50 font-bold text-slate-800">
+                                <tr>
+                                    <td class="py-3 px-4" colspan="2">សរុបប្រាក់បែងចែក៖</td>
+                                    <td class="py-3 px-4 text-right text-emerald-600" id="div-preview-total">$0.00</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                    <div class="flex justify-end gap-3">
+                        <button onclick="document.getElementById('div-preview-section').classList.add('hidden')" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-2 px-6 rounded-lg text-sm transition-all">
+                            បោះបង់
+                        </button>
+                        <button onclick="saveDividendDistribution()" class="bg-amber-500 hover:bg-amber-600 text-white font-bold py-2 px-6 rounded-lg text-sm transition-all shadow-md">
+                            បញ្ជាក់ការបែងចែក និងកត់ត្រា
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dividend History -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 max-w-4xl mx-auto">
+                <h3 class="text-lg font-bold text-slate-800 mb-4">ប្រវត្តិបែងចែកភាគលាភ</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50 text-slate-500 text-xs font-bold uppercase border-b border-slate-100">
+                                <th class="py-3 px-4">កាលបរិច្ឆេទ</th>
+                                <th class="py-3 px-4 text-right">ទឹកប្រាក់សរុប ($)</th>
+                                <th class="py-3 px-4">ព័ត៌មានលម្អិត</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dividend-history-list" class="divide-y divide-slate-100 text-sm">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== TAB 5: REPORTS ==================== -->
+        <section id="tab-reports" class="tab-content hidden space-y-6">
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 no-print">
+                <div class="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6">
+                    <h2 class="text-xl font-bold text-slate-800">របាយការណ៍សង្ខេប</h2>
+                    <button onclick="window.print()" class="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 font-bold py-2 px-4 rounded-lg text-sm flex items-center gap-2 transition-all">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                        បោះពុម្ពរបាយការណ៍
+                    </button>
+                </div>
+            </div>
+
+            <!-- Printable Report Area -->
+            <div id="printable-report" class="bg-white p-8 rounded-xl shadow-sm border border-slate-100 print:shadow-none print:border-none print:p-0">
+                <div class="text-center mb-8">
+                    <h1 class="text-2xl font-bold text-slate-900 mb-2">របាយការណ៍ហិរញ្ញវត្ថុ និងភាគលាភ</h1>
+                    <p class="text-slate-500 text-sm">កាលបរិច្ឆេទចេញរបាយការណ៍៖ <span id="report-date" class="font-semibold text-slate-700"></span></p>
+                </div>
+
+                <div class="grid grid-cols-2 gap-6 mb-8">
+                    <div class="border border-slate-200 p-4 rounded-lg">
+                        <h4 class="text-slate-500 font-bold text-xs uppercase mb-1">ចំណូលសរុប</h4>
+                        <p class="text-2xl font-bold text-emerald-600" id="rep-income">$0.00</p>
+                    </div>
+                    <div class="border border-slate-200 p-4 rounded-lg">
+                        <h4 class="text-slate-500 font-bold text-xs uppercase mb-1">ចំណាយសរុប</h4>
+                        <p class="text-2xl font-bold text-rose-600" id="rep-expense">$0.00</p>
+                    </div>
+                    <div class="border border-slate-200 p-4 rounded-lg">
+                        <h4 class="text-slate-500 font-bold text-xs uppercase mb-1">ប្រាក់ចំណេញ (Profit)</h4>
+                        <p class="text-2xl font-bold text-indigo-600" id="rep-profit">$0.00</p>
+                    </div>
+                    <div class="border border-slate-200 p-4 rounded-lg">
+                        <h4 class="text-slate-500 font-bold text-xs uppercase mb-1">ភាគលាភបានបែងចែក</h4>
+                        <p class="text-2xl font-bold text-amber-600" id="rep-dividend">$0.00</p>
+                    </div>
+                </div>
+
+                <div class="mb-8">
+                    <h3 class="font-bold text-slate-800 border-b-2 border-slate-800 pb-2 mb-4">សមាមាត្រភាគហ៊ុនិកបច្ចុប្បន្ន</h3>
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-100 text-slate-700 text-sm">
+                                <th class="py-2 px-3 border border-slate-200">ឈ្មោះភាគហ៊ុនិក</th>
+                                <th class="py-2 px-3 border border-slate-200 text-right">ភាគហ៊ុន (%)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="rep-shareholders-list" class="text-sm">
+                            <!-- Populated -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div>
+                    <h3 class="font-bold text-slate-800 border-b-2 border-slate-800 pb-2 mb-4">ប្រវត្តិបែងចែកភាគលាភ (Dividend Distributions)</h3>
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-100 text-slate-700 text-sm">
+                                <th class="py-2 px-3 border border-slate-200">កាលបរិច្ឆេទ</th>
+                                <th class="py-2 px-3 border border-slate-200 text-right">ទឹកប្រាក់បានបែងចែក</th>
+                            </tr>
+                        </thead>
+                        <tbody id="rep-dividends-list" class="text-sm">
+                            <!-- Populated -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // ដាក់ URL ដែលទទួលបានពីការ Deploy Apps Script នៅទីនេះ
+        const API_URL = "https://script.google.com/macros/s/AKfycbxWZhAq_5JZyg7PfLMV3Kr_AbiAcB0EmNKpo6l-JcrzWhh4tLOzupCUoglLQFBm8fegow/exec"; 
+
+        // ផ្លាស់ប្តូរ state ទៅជាទិន្នន័យដែលទាញបានពី Sheet
+        let state = { transactions: [], shareholders: [], dividends: [] };
+
+        // មុខងារទាញទិន្នន័យ
+        async function fetchData() {
+            const res = await fetch(API_URL);
+            const data = await res.json();
+            // បម្លែងទិន្នន័យពី Array មក Object
+            state.transactions = parseSheetData(data.transactions);
+            state.shareholders = parseSheetData(data.shareholders);
+            state.dividends = parseSheetData(data.dividends);
+            updateAll();
+        }
+
+        // រក្សាទុកទិន្នន័យទៅ Sheet
+        async function saveData(sheetName, action, data) {
+            await fetch(API_URL, {
+                method: 'POST',
+                body: JSON.stringify({ sheet: sheetName, action: action, rows: data })
+            });
+            fetchData();
+        }
+
+        window.onload = function() {
+            fetchData();
+        // Initialize App
+        window.onload = function() {
+            document.getElementById('report-date').textContent = new Date().toLocaleDateString('en-GB');
+            toggleFormStyles();
+            updateAll();
+        };
+
+        // UI Tabs Management
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+
+            document.querySelectorAll('.tab-btn').forEach(el => {
+                el.classList.remove('active', 'bg-indigo-800', 'text-white');
+                el.classList.add('text-indigo-200');
+            });
+            document.getElementById(`btn-${tabId}`)?.classList.add('active', 'bg-indigo-800', 'text-white');
+            document.getElementById(`btn-${tabId}`)?.classList.remove('text-indigo-200');
+
+            document.querySelectorAll('.mobile-tab-btn').forEach(el => {
+                el.classList.remove('active', 'text-indigo-600');
+                el.classList.add('text-slate-400');
+            });
+            document.getElementById(`mbtn-${tabId}`)?.classList.add('active', 'text-indigo-600');
+            document.getElementById(`mbtn-${tabId}`)?.classList.remove('text-slate-400');
+
+            if(tabId === 'dividend') prefillDividendAmount();
+        }
+
+        // Toast Notification
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            const bg = type === 'success' ? 'bg-emerald-500' : (type === 'error' ? 'bg-rose-500' : 'bg-indigo-500');
+            toast.className = `${bg} text-white px-4 py-2 rounded-lg shadow-lg text-sm transition-opacity duration-300 transform translate-y-0 opacity-100 flex items-center gap-2`;
+            toast.innerHTML = type === 'success' ? `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>${message}` : message;
+            
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.classList.add('opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Format Currency
+        const formatMoney = (amount) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
+
+        // Core Update Logic
+        function updateAll() {
+            renderTransactions();
+            renderShareholders();
+            renderDividendHistory();
+            updateDashboardStats();
+            updateCharts();
+            updateReports();
+        }
+
+        // ======================= DASHBOARD & STATS =======================
+        function calculateStats() {
+            let totalIncome = 0;
+            let totalExpense = 0;
+            let totalDividend = 0;
+
+            state.transactions.forEach(tx => {
+                if (tx.type === 'income') totalIncome += parseFloat(tx.amount);
+                else totalExpense += parseFloat(tx.amount);
+            });
+
+            state.dividends.forEach(d => {
+                totalDividend += parseFloat(d.amount);
+            });
+
+            const netProfit = totalIncome - totalExpense;
+            const undistributed = netProfit - totalDividend;
+
+            return {
+                totalIncome,
+                incomeCount: state.transactions.filter(t => t.type === 'income').length,
+                totalExpense,
+                expenseCount: state.transactions.filter(t => t.type === 'expense').length,
+                netProfit,
+                totalDividend,
+                dividendCount: state.dividends.length,
+                undistributed
+            };
+        }
+
+        function updateDashboardStats() {
+            const stats = calculateStats();
+            
+            document.getElementById('stat-income').textContent = formatMoney(stats.totalIncome);
+            document.getElementById('stat-income-count').textContent = `${stats.incomeCount} ប្រតិបត្តិការ`;
+            
+            document.getElementById('stat-expense').textContent = formatMoney(stats.totalExpense);
+            document.getElementById('stat-expense-count').textContent = `${stats.expenseCount} ប្រតិបត្តិការ`;
+            
+            document.getElementById('stat-profit').textContent = formatMoney(stats.netProfit);
+            
+            document.getElementById('stat-dividend').textContent = formatMoney(stats.undistributed);
+            document.getElementById('stat-dividend-count').textContent = `បានបែងចែកសរុប ${formatMoney(stats.totalDividend)} (${stats.dividendCount} ដង)`;
+
+            // Total shares percentage validation
+            const totalShares = state.shareholders.reduce((sum, sh) => sum + parseFloat(sh.share), 0);
+            const badge = document.getElementById('sh-total-shares-badge');
+            badge.textContent = `${totalShares.toFixed(2)}%`;
+            badge.className = `px-3 py-1 rounded-full text-xs font-bold ${totalShares === 100 ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}`;
+            
+            document.getElementById('dash-shareholders-count').textContent = `${state.shareholders.length} នាក់`;
+            document.getElementById('dash-shares-percent').textContent = `${totalShares.toFixed(2)}%`;
+        }
+
+        // ======================= TRANSACTIONS =======================
+        function toggleFormStyles() {
+            const type = document.querySelector('input[name="tx-type"]:checked').value;
+            const lblIncome = document.getElementById('label-income');
+            const lblExpense = document.getElementById('label-expense');
+            
+            if (type === 'income') {
+                lblIncome.classList.add('border-emerald-500', 'bg-emerald-50/50');
+                lblIncome.classList.remove('border-slate-200');
+                lblExpense.classList.remove('border-rose-500', 'bg-rose-50/50');
+                lblExpense.classList.add('border-slate-200');
+            } else {
+                lblExpense.classList.add('border-rose-500', 'bg-rose-50/50');
+                lblExpense.classList.remove('border-slate-200');
+                lblIncome.classList.remove('border-emerald-500', 'bg-emerald-50/50');
+                lblIncome.classList.add('border-slate-200');
+            }
+
+            // Populate Categories
+            const catSelect = document.getElementById('tx-category');
+            catSelect.innerHTML = categories[type].map(c => `<option value="${c}">${c}</option>`).join('');
+        }
+
+        function saveTransaction(e) {
+            e.preventDefault();
+            const id = document.getElementById('tx-id').value;
+            const type = document.querySelector('input[name="tx-type"]:checked').value;
+            const desc = document.getElementById('tx-desc').value;
+            const amount = parseFloat(document.getElementById('tx-amount').value);
+            const date = document.getElementById('tx-date').value;
+            const category = document.getElementById('tx-category').value;
+
+            const tx = { id: id || Date.now().toString(), type, desc, amount, date, category };
+
+            if (id) {
+                const index = state.transactions.findIndex(t => t.id === id);
+                if (index > -1) state.transactions[index] = tx;
+                showToast('បានកែប្រែប្រតិបត្តិការជោគជ័យ');
+            } else {
+                state.transactions.push(tx);
+                showToast('បានកត់ត្រាប្រតិបត្តិការជោគជ័យ');
+            }
+
+            resetTransactionForm();
+            updateAll();
+        }
+
+        function resetTransactionForm() {
+            document.getElementById('transaction-form').reset();
+            document.getElementById('tx-id').value = '';
+            document.querySelector('input[name="tx-type"][value="income"]').checked = true;
+            document.getElementById('form-transaction-title').innerHTML = `<span class="p-1.5 bg-indigo-50 text-indigo-600 rounded-md"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></span> កត់ត្រាប្រតិបត្តិការហិរញ្ញវត្ថុ`;
+            toggleFormStyles();
+        }
+
+        function editTransaction(id) {
+            const tx = state.transactions.find(t => t.id === id);
+            if (!tx) return;
+            
+            document.getElementById('tx-id').value = tx.id;
+            document.querySelector(`input[name="tx-type"][value="${tx.type}"]`).checked = true;
+            toggleFormStyles();
+            
+            document.getElementById('tx-desc').value = tx.desc;
+            document.getElementById('tx-amount').value = tx.amount;
+            document.getElementById('tx-date').value = tx.date;
+            document.getElementById('tx-category').value = tx.category;
+            
+            document.getElementById('form-transaction-title').innerHTML = `<span class="p-1.5 bg-amber-50 text-amber-600 rounded-md"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></span> កែប្រែប្រតិបត្តិការ`;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function deleteTransaction(id) {
+            if(confirm("តើអ្នកពិតជាចង់លុបប្រតិបត្តិការនេះមែនទេ?")) {
+                state.transactions = state.transactions.filter(t => t.id !== id);
+                showToast('លុបជោគជ័យ', 'error');
+                updateAll();
+            }
+        }
+
+        function renderTransactions() {
+            const tbody = document.getElementById('transactions-list');
+            const recentTbody = document.getElementById('recent-transactions-list');
+            const search = document.getElementById('tx-search')?.value.toLowerCase() || '';
+            const filterType = document.getElementById('tx-filter-type')?.value || 'all';
+
+            // Sort by date descending
+            let filtered = [...state.transactions].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            // Populate Recent Transactions (Dashboard) - Max 5
+            recentTbody.innerHTML = filtered.slice(0, 5).map(tx => `
+                <tr class="border-b border-slate-50 hover:bg-slate-50/50">
+                    <td class="py-3 px-6 whitespace-nowrap">${new Date(tx.date).toLocaleDateString('en-GB')}</td>
+                    <td class="py-3 px-6 font-medium">${tx.desc}</td>
+                    <td class="py-3 px-6"><span class="px-2 py-1 rounded text-[10px] font-bold ${tx.type === 'income' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}">${tx.type === 'income' ? 'ចំណូល' : 'ចំណាយ'}</span></td>
+                    <td class="py-3 px-6 text-slate-500 text-xs">${tx.category}</td>
+                    <td class="py-3 px-6 text-right font-bold ${tx.type === 'income' ? 'text-emerald-600' : 'text-rose-600'}">${tx.type === 'income' ? '+' : '-'}${formatMoney(tx.amount)}</td>
+                </tr>
+            `).join('');
+
+            // Full List Filtering
+            if (filterType !== 'all') filtered = filtered.filter(t => t.type === filterType);
+            if (search) filtered = filtered.filter(t => t.desc.toLowerCase().includes(search) || t.category.toLowerCase().includes(search));
+
+            tbody.innerHTML = filtered.length ? filtered.map(tx => `
+                <tr class="border-b border-slate-50 hover:bg-slate-50/50">
+                    <td class="py-3 px-4 whitespace-nowrap">${new Date(tx.date).toLocaleDateString('en-GB')}</td>
+                    <td class="py-3 px-4 font-medium">${tx.desc}</td>
+                    <td class="py-3 px-4 text-xs">
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full ${tx.type === 'income' ? 'bg-emerald-500' : 'bg-rose-500'}"></span>
+                            ${tx.category}
+                        </div>
+                    </td>
+                    <td class="py-3 px-4 text-right font-bold ${tx.type === 'income' ? 'text-emerald-600' : 'text-rose-600'}">${tx.type === 'income' ? '+' : '-'}${formatMoney(tx.amount)}</td>
+                    <td class="py-3 px-4 text-center">
+                        <button onclick="editTransaction('${tx.id}')" class="text-indigo-500 hover:text-indigo-700 mx-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></button>
+                        <button onclick="deleteTransaction('${tx.id}')" class="text-rose-500 hover:text-rose-700 mx-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
+                    </td>
+                </tr>
+            `).join('') : `<tr><td colspan="5" class="py-8 text-center text-slate-400">គ្មានទិន្នន័យ</td></tr>`;
+        }
+
+        // ======================= SHAREHOLDERS =======================
+        function saveShareholder(e) {
+            e.preventDefault();
+            const id = document.getElementById('sh-id').value;
+            const name = document.getElementById('sh-name').value;
+            const share = parseFloat(document.getElementById('sh-share').value);
+            const phone = document.getElementById('sh-phone').value;
+
+            // Validate total percentage
+            let currentTotal = state.shareholders.filter(s => s.id !== id).reduce((sum, s) => sum + parseFloat(s.share), 0);
+            if (currentTotal + share > 100) {
+                alert(`មិនអាចរក្សាទុកបានទេ! ភាគហ៊ុនសរុបនឹងលើស ១០០%។ (នៅសល់តែ ${(100 - currentTotal).toFixed(2)}% ប៉ុណ្ណោះ)`);
+                return;
+            }
+
+            const sh = { id: id || 'sh' + Date.now(), name, share, phone };
+
+            if (id) {
+                const index = state.shareholders.findIndex(s => s.id === id);
+                if (index > -1) state.shareholders[index] = sh;
+                showToast('បានកែប្រែភាគហ៊ុនិកជោគជ័យ');
+            } else {
+                state.shareholders.push(sh);
+                showToast('បានចុះឈ្មោះភាគហ៊ុនិកថ្មីជោគជ័យ');
+            }
+
+            resetShareholderForm();
+            updateAll();
+        }
+
+        function resetShareholderForm() {
+            document.getElementById('shareholder-form').reset();
+            document.getElementById('sh-id').value = '';
+            document.getElementById('form-shareholder-title').innerHTML = `<span class="p-1.5 bg-indigo-50 text-indigo-600 rounded-md"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m4 2a8 8 0 11-18 0 8 8 0 0118 0z"></path></svg></span> ចុះឈ្មោះភាគហ៊ុនិកថ្មី`;
+        }
+
+        function editShareholder(id) {
+            const sh = state.shareholders.find(s => s.id === id);
+            if (!sh) return;
+            document.getElementById('sh-id').value = sh.id;
+            document.getElementById('sh-name').value = sh.name;
+            document.getElementById('sh-share').value = sh.share;
+            document.getElementById('sh-phone').value = sh.phone;
+            
+            document.getElementById('form-shareholder-title').innerHTML = `<span class="p-1.5 bg-amber-50 text-amber-600 rounded-md"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></span> កែប្រែព័ត៌មានភាគហ៊ុនិក`;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function deleteShareholder(id) {
+            if(confirm("តើអ្នកពិតជាចង់លុបភាគហ៊ុនិកនេះមែនទេ?")) {
+                state.shareholders = state.shareholders.filter(s => s.id !== id);
+                showToast('លុបជោគជ័យ', 'error');
+                updateAll();
+            }
+        }
+
+        function renderShareholders() {
+            const tbody = document.getElementById('shareholders-list');
+            tbody.innerHTML = state.shareholders.length ? state.shareholders.map(sh => `
+                <tr class="border-b border-slate-50 hover:bg-slate-50/50">
+                    <td class="py-3 px-4 font-bold text-slate-700">${sh.name}</td>
+                    <td class="py-3 px-4 text-slate-500">${sh.phone || '-'}</td>
+                    <td class="py-3 px-4 text-right">
+                        <div class="flex items-center justify-end gap-2">
+                            <div class="w-16 bg-slate-200 rounded-full h-1.5"><div class="bg-indigo-600 h-1.5 rounded-full" style="width: ${sh.share}%"></div></div>
+                            <span class="font-bold">${sh.share}%</span>
+                        </div>
+                    </td>
+                    <td class="py-3 px-4 text-center">
+                        <button onclick="editShareholder('${sh.id}')" class="text-indigo-500 hover:text-indigo-700 mx-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></button>
+                        <button onclick="deleteShareholder('${sh.id}')" class="text-rose-500 hover:text-rose-700 mx-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
+                    </td>
+                </tr>
+            `).join('') : `<tr><td colspan="4" class="py-8 text-center text-slate-400">គ្មានទិន្នន័យ</td></tr>`;
+        }
+
+        // ======================= DIVIDENDS =======================
+        let pendingDistribution = null;
+
+        function prefillDividendAmount() {
+            const stats = calculateStats();
+            document.getElementById('div-available-profit').textContent = formatMoney(stats.undistributed);
+            document.getElementById('div-amount').value = stats.undistributed > 0 ? stats.undistributed.toFixed(2) : 0;
+            document.getElementById('div-preview-section').classList.add('hidden');
+        }
+
+        function calculateDividend() {
+            const amount = parseFloat(document.getElementById('div-amount').value);
+            const stats = calculateStats();
+            const totalShares = state.shareholders.reduce((sum, sh) => sum + parseFloat(sh.share), 0);
+
+            if (isNaN(amount) || amount <= 0) {
+                alert("សូមបញ្ចូលចំនួនទឹកប្រាក់ឲ្យបានត្រឹមត្រូវ"); return;
+            }
+            if (amount > stats.undistributed) {
+                alert("ទឹកប្រាក់ដែលចង់បែងចែកលើសពីប្រាក់ចំណេញដែលមាន!"); return;
+            }
+            if (totalShares !== 100) {
+                alert(`មិនអាចបែងចែកបានទេ! ភាគហ៊ុនសរុបបច្ចុប្បន្នគឺ ${totalShares}% (ត្រូវតែស្មើ 100%)`); return;
+            }
+
+            const distributions = state.shareholders.map(sh => {
+                return {
+                    shId: sh.id,
+                    name: sh.name,
+                    share: sh.share,
+                    amount: amount * (sh.share / 100)
+                };
+            });
+
+            pendingDistribution = { amount, distributions };
+
+            // Render Preview
+            const tbody = document.getElementById('div-preview-list');
+            tbody.innerHTML = distributions.map(d => `
+                <tr class="hover:bg-slate-50/50">
+                    <td class="py-2 px-4 font-medium">${d.name}</td>
+                    <td class="py-2 px-4 text-center">${d.share}%</td>
+                    <td class="py-2 px-4 text-right font-bold text-slate-800">${formatMoney(d.amount)}</td>
+                </tr>
+            `).join('');
+            
+            document.getElementById('div-preview-total').textContent = formatMoney(amount);
+            document.getElementById('div-preview-section').classList.remove('hidden');
+        }
+
+        function saveDividendDistribution() {
+            if (!pendingDistribution) return;
+
+            const newDiv = {
+                id: 'div' + Date.now(),
+                date: new Date().toISOString().split('T')[0],
+                amount: pendingDistribution.amount,
+                distributions: pendingDistribution.distributions.map(d => ({shId: d.shId, amount: d.amount}))
+            };
+
+            state.dividends.push(newDiv);
+            pendingDistribution = null;
+            document.getElementById('div-preview-section').classList.add('hidden');
+            
+            showToast('បានកត់ត្រាការបែងចែកភាគលាភដោយជោគជ័យ!');
+            updateAll();
+            prefillDividendAmount();
+        }
+
+        function renderDividendHistory() {
+            const tbody = document.getElementById('dividend-history-list');
+            tbody.innerHTML = state.dividends.length ? state.dividends.sort((a,b) => new Date(b.date) - new Date(a.date)).map(div => {
+                const details = div.distributions.map(d => {
+                    const sh = state.shareholders.find(s => s.id === d.shId);
+                    return `${sh ? sh.name : 'Unknown'}: ${formatMoney(d.amount)}`;
+                }).join('<br>');
+                
+                return `
+                <tr class="border-b border-slate-50 hover:bg-slate-50/50">
+                    <td class="py-3 px-4 whitespace-nowrap">${new Date(div.date).toLocaleDateString('en-GB')}</td>
+                    <td class="py-3 px-4 text-right font-bold text-amber-600">${formatMoney(div.amount)}</td>
+                    <td class="py-3 px-4 text-xs text-slate-600 leading-relaxed">${details}</td>
+                </tr>
+            `}).join('') : `<tr><td colspan="3" class="py-8 text-center text-slate-400">មិនទាន់មានប្រវត្តិបែងចែក</td></tr>`;
+        }
+
+        // ======================= CHARTS =======================
+        function updateCharts() {
+            // Trend Chart Data processing
+            const monthlyData = {};
+            state.transactions.forEach(tx => {
+                const month = tx.date.substring(0, 7); // YYYY-MM
+                if (!monthlyData[month]) monthlyData[month] = { income: 0, expense: 0 };
+                if (tx.type === 'income') monthlyData[month].income += tx.amount;
+                else monthlyData[month].expense += tx.amount;
+            });
+
+            const labels = Object.keys(monthlyData).sort();
+            const incomeData = labels.map(l => monthlyData[l].income);
+            const expenseData = labels.map(l => monthlyData[l].expense);
+
+            const trendCtx = document.getElementById('trendChart').getContext('2d');
+            if (trendChartInstance) trendChartInstance.destroy();
+            trendChartInstance = new Chart(trendCtx, {
+                type: 'line',
+                data: {
+                    labels: labels.map(l => { const d = new Date(l+'-01'); return d.toLocaleString('en-US', {month: 'short', year: '2-digit'}); }),
+                    datasets: [
+                        { label: 'ចំណូល', data: incomeData, borderColor: '#10b981', backgroundColor: '#10b98122', tension: 0.3, fill: true },
+                        { label: 'ចំណាយ', data: expenseData, borderColor: '#f43f5e', backgroundColor: 'transparent', tension: 0.3 }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+
+            // Shares Pie Chart
+            const sharesCtx = document.getElementById('sharesChart').getContext('2d');
+            if (sharesChartInstance) sharesChartInstance.destroy();
+            
+            const shareLabels = state.shareholders.map(s => s.name);
+            const shareData = state.shareholders.map(s => s.share);
+            const bgColors = ['#4f46e5', '#10b981', '#f59e0b', '#06b6d4', '#8b5cf6', '#ec4899'];
+
+            sharesChartInstance = new Chart(sharesCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: shareLabels.length ? shareLabels : ['គ្មានទិន្នន័យ'],
+                    datasets: [{
+                        data: shareData.length ? shareData : [100],
+                        backgroundColor: shareData.length ? bgColors : ['#e2e8f0'],
+                        borderWidth: 0
+                    }]
+                },
+                options: { 
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { position: 'right', labels: { boxWidth: 12, font: {size: 10} } } },
+                    cutout: '70%'
+                }
+            });
+        }
+
+        // ======================= REPORTS =======================
+        function updateReports() {
+            const stats = calculateStats();
+            document.getElementById('rep-income').textContent = formatMoney(stats.totalIncome);
+            document.getElementById('rep-expense').textContent = formatMoney(stats.totalExpense);
+            document.getElementById('rep-profit').textContent = formatMoney(stats.netProfit);
+            document.getElementById('rep-dividend').textContent = formatMoney(stats.totalDividend);
+
+            document.getElementById('rep-shareholders-list').innerHTML = state.shareholders.map(sh => `
+                <tr>
+                    <td class="py-2 px-3 border border-slate-200">${sh.name}</td>
+                    <td class="py-2 px-3 border border-slate-200 text-right font-semibold">${sh.share}%</td>
+                </tr>
+            `).join('');
+
+            document.getElementById('rep-dividends-list').innerHTML = state.dividends.map(d => `
+                <tr>
+                    <td class="py-2 px-3 border border-slate-200">${new Date(d.date).toLocaleDateString('en-GB')}</td>
+                    <td class="py-2 px-3 border border-slate-200 text-right font-semibold text-amber-600">${formatMoney(d.amount)}</td>
+                </tr>
+            `).join('') || `<tr><td colspan="2" class="py-2 px-3 border border-slate-200 text-center text-slate-400 text-xs">គ្មាន</td></tr>`;
+        }
+
+        // ======================= AI INTEGRATION =======================
+        async function fetchGeminiAPI(prompt, schema = null) {
+            if(!apiKey) {
+                alert("API Key មិនទាន់បានកំណត់។");
+                return null;
+            }
+            
+            let payload = {
+                contents: [{ parts: [{ text: prompt }] }],
+            };
+
+            if (schema) {
+                payload.generationConfig = {
+                    responseMimeType: "application/json",
+                    responseSchema: schema
+                };
+            }
+
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                if(!response.ok) throw new Error("API Error");
+                const data = await response.json();
+                return data.candidates[0].content.parts[0].text;
+            } catch (error) {
+                console.error("AI API Error:", error);
+                return null;
+            }
+        }
+
+        async function parseTransactionWithAI() {
+            const textInput = document.getElementById('ai-natural-text').value;
+            if(!textInput.trim()) return;
+
+            const btn = document.getElementById('btn-ai-parse');
+            const spinner = document.getElementById('ai-parse-spinner');
+            btn.disabled = true;
+            spinner.classList.remove('hidden');
+
+            const schema = {
+                type: "OBJECT",
+                properties: {
+                    type: { type: "STRING", enum: ["income", "expense"] },
+                    desc: { type: "STRING" },
+                    amount: { type: "NUMBER" },
+                    date: { type: "STRING" }, // format YYYY-MM-DD
+                    category: { type: "STRING" }
+                }
+            };
+
+            const prompt = `
+                សូមវិភាគអត្ថបទនេះ ហើយទាញយកព័ត៌មានប្រតិបត្តិការហិរញ្ញវត្ថុ។ 
+                អត្ថបទ៖ "${textInput}"
+                បើជាការចំណាយ (ទិញ បង់ថ្លៃ ជាដើម) ដាក់ type: expense។ បើចំណូល (លក់ ទទួលបាន) ដាក់ type: income។ 
+                បើមិនមានថ្ងៃខែ ប្រើថ្ងៃនេះ៖ ${new Date().toISOString().split('T')[0]}។
+                Category ត្រូវតែពាក់ព័ន្ធជាភាសាខ្មែរ (ឧ. ការលក់, ចំណាយប្រចាំថ្ងៃ, ទីតាំង, សម្ភារៈ)។
+            `;
+
+            const resultStr = await fetchGeminiAPI(prompt, schema);
+            
+            if(resultStr) {
+                try {
+                    const data = JSON.parse(resultStr);
+                    document.querySelector(`input[name="tx-type"][value="${data.type}"]`).checked = true;
+                    toggleFormStyles();
+                    
+                    document.getElementById('tx-desc').value = data.desc || '';
+                    document.getElementById('tx-amount').value = data.amount || '';
+                    document.getElementById('tx-date').value = data.date || new Date().toISOString().split('T')[0];
+                    
+                    // Add Category if not exists
+                    const catSelect = document.getElementById('tx-category');
+                    let optionExists = Array.from(catSelect.options).some(o => o.value === data.category);
+                    if(!optionExists && data.category) {
+                        catSelect.innerHTML += `<option value="${data.category}">${data.category}</option>`;
+                    }
+                    document.getElementById('tx-category').value = data.category || catSelect.options[0].value;
+                    
+                    document.getElementById('ai-natural-text').value = '';
+                    showToast('វិភាគរួចរាល់ សូមពិនិត្យរួចចុចរក្សាទុក!');
+                } catch(e) {
+                    showToast('មិនអាចទាញទិន្នន័យបាន។', 'error');
+                }
+            } else {
+                showToast('មានបញ្ហាក្នុងការតភ្ជាប់ AI', 'error');
+            }
+
+            btn.disabled = false;
+            spinner.classList.add('hidden');
+        }
+
+        async function getAIFinancialInsights() {
+            const resultBox = document.getElementById('ai-insight-result-box');
+            const loading = document.getElementById('ai-insight-loading');
+            const textEl = document.getElementById('ai-insight-text');
+            const btn = document.getElementById('btn-ai-insights');
+
+            resultBox.classList.remove('hidden');
+            loading.classList.remove('hidden');
+            textEl.innerHTML = '';
+            btn.disabled = true;
+
+            const stats = calculateStats();
+            
+            const prompt = `
+                អ្នកគឺជាអ្នកជំនាញទីប្រឹក្សាហិរញ្ញវត្ថុសម្រាប់អាជីវកម្មខ្នាតតូច។
+                នេះគឺជាទិន្នន័យហិរញ្ញវត្ថុបច្ចុប្បន្នរបស់អាជីវកម្ម៖
+                - ចំណូលសរុប: $${stats.totalIncome}
+                - ចំណាយសរុប: $${stats.totalExpense}
+                - ប្រាក់ចំណេញ: $${stats.netProfit}
+                - ប្រាក់បម្រុងមិនទាន់បែងចែកភាគលាភ: $${stats.undistributed}
+
+                សូមផ្តល់ការវិភាគខ្លីៗ និងអនុសាសន៍យុទ្ធសាស្ត្រដើម្បីឲ្យក្រុមហ៊ុនកាន់តែរីកចម្រើន។
+                សរសេរជាភាសាខ្មែរ ដោយប្រើទម្រង់ងាយយល់ មានចំណុច (Bullet points)។ កុំវែងពេក។
+            `;
+
+            const resultStr = await fetchGeminiAPI(prompt);
+            
+            loading.classList.add('hidden');
+            btn.disabled = false;
+
+            if (resultStr) {
+                // simple markdown parsing for bold and bullets
+                let formatted = resultStr
+                    .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
+                    .replace(/\*(.*?)/g, '• $1');
+                textEl.innerHTML = formatted;
+            } else {
+                textEl.innerHTML = '<span class="text-rose-500">មានបញ្ហាក្នុងការតភ្ជាប់។ សូមព្យាយាមម្តងទៀត។</span>';
+            }
+        }
+    </script>
+</body>
+</html>
