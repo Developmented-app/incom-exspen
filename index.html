@@ -55,7 +55,11 @@
                         <p class="text-xs text-indigo-200 font-light">Financial & Dividend AI Assistant</p>
                     </div>
                 </div>
-                <nav class="hidden md:flex space-x-2">
+                <nav class="hidden md:flex items-center space-x-2">
+                    <div class="flex items-center mr-4 bg-indigo-950/50 rounded-lg p-1 border border-indigo-700">
+                        <input type="password" id="api-key-input" placeholder="Gemini API Key" class="bg-transparent text-[10px] w-28 px-2 text-white focus:outline-none">
+                        <button onclick="saveApiKey()" class="bg-indigo-600 hover:bg-indigo-500 text-[10px] px-2 py-1 rounded font-bold transition-all">រក្សាទុក</button>
+                    </div>
                     <button onclick="switchTab('dashboard')" id="btn-dashboard" class="tab-btn active px-3 py-2 rounded-md text-sm font-medium text-indigo-200 hover:text-white hover:bg-indigo-800">ផ្ទាំងគ្រប់គ្រង</button>
                     <button onclick="switchTab('transactions')" id="btn-transactions" class="tab-btn px-3 py-2 rounded-md text-sm font-medium text-indigo-200 hover:text-white hover:bg-indigo-800">ចំណូល-ចំណាយ</button>
                     <button onclick="switchTab('shareholders')" id="btn-shareholders" class="tab-btn px-3 py-2 rounded-md text-sm font-medium text-indigo-200 hover:text-white hover:bg-indigo-800">ភាគហ៊ុនិក</button>
@@ -590,40 +594,101 @@
 
     <!-- JavaScript Application Logic -->
     <script>
-        // ដាក់ URL ដែលទទួលបានពីការ Deploy Apps Script នៅទីនេះ
-        const API_URL = "https://script.google.com/macros/s/AKfycbxWZhAq_5JZyg7PfLMV3Kr_AbiAcB0EmNKpo6l-JcrzWhh4tLOzupCUoglLQFBm8fegow/exec"; 
-
-        // ផ្លាស់ប្តូរ state ទៅជាទិន្នន័យដែលទាញបានពី Sheet
+        const STORAGE_KEY = 'financialDividendManagementState';
+        const apiKey = localStorage.getItem('geminiApiKey') || 'AQ.Ab8RN6Io9e7_DOVvhOOxS57WZ5g_7XAj5vctZueg8S8h1qSqXw';
+        const categories = {
+            income: ['ការលក់', 'សេវាកម្ម', 'ការវិនិយោគ', 'ប្រាក់កម្ចី', 'ចំណូលផ្សេងៗ'],
+            expense: ['ចំណាយប្រចាំថ្ងៃ', 'ប្រាក់ខែ', 'ទីតាំង/ជួល', 'ទឹក-ភ្លើង', 'សម្ភារៈ', 'ទីផ្សារ', 'ដឹកជញ្ជូន', 'ចំណាយផ្សេងៗ']
+        };
         let state = { transactions: [], shareholders: [], dividends: [] };
+        let trendChartInstance = null;
+        let sharesChartInstance = null;
 
-        // មុខងារទាញទិន្នន័យ
+        function saveApiKey() {
+            const key = document.getElementById('api-key-input').value;
+            if (key) {
+                localStorage.setItem('geminiApiKey', key);
+                showToast('បានរក្សាទុក API Key រួចរាល់');
+                setTimeout(() => location.reload(), 1000);
+            }
+        }
+
+        function normalizeNumber(value) {
+            const number = parseFloat(value);
+            return Number.isFinite(number) ? number : 0;
+        }
+
+        function normalizeState(data) {
+            const source = data && typeof data === 'object' ? data : {};
+            return {
+                transactions: Array.isArray(source.transactions) ? source.transactions.map(tx => ({
+                    id: String(tx.id || Date.now() + Math.random()),
+                    type: tx.type === 'expense' ? 'expense' : 'income',
+                    desc: String(tx.desc || tx.description || ''),
+                    amount: normalizeNumber(tx.amount),
+                    date: tx.date || new Date().toISOString().split('T')[0],
+                    category: String(tx.category || '')
+                })) : [],
+                shareholders: Array.isArray(source.shareholders) ? source.shareholders.map(sh => ({
+                    id: String(sh.id || 'sh' + Date.now() + Math.random()),
+                    name: String(sh.name || ''),
+                    share: normalizeNumber(sh.share),
+                    phone: String(sh.phone || '')
+                })) : [],
+                dividends: Array.isArray(source.dividends) ? source.dividends.map(div => ({
+                    id: String(div.id || 'div' + Date.now() + Math.random()),
+                    date: div.date || new Date().toISOString().split('T')[0],
+                    amount: normalizeNumber(div.amount),
+                    distributions: Array.isArray(div.distributions) ? div.distributions.map(d => ({
+                        shId: String(d.shId || d.shareholderId || ''),
+                        amount: normalizeNumber(d.amount)
+                    })) : []
+                })) : []
+            };
+        }
+
+        function loadLocalData() {
+            try {
+                state = normalizeState(JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'));
+            } catch (error) {
+                console.warn('Could not load local data:', error);
+                state = normalizeState({});
+            }
+        }
+
+        function persistState() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        }
+
+        function parseSheetData(rows) {
+            if (!Array.isArray(rows)) return [];
+            if (!rows.length || typeof rows[0] === 'object' && !Array.isArray(rows[0])) return rows;
+
+            const headers = rows[0].map(header => String(header).trim());
+            return rows.slice(1).map(row => headers.reduce((item, header, index) => {
+                item[header] = row[index];
+                return item;
+            }, {}));
+        }
+
         async function fetchData() {
-            const res = await fetch(API_URL);
-            const data = await res.json();
-            // បម្លែងទិន្នន័យពី Array មក Object
-            state.transactions = parseSheetData(data.transactions);
-            state.shareholders = parseSheetData(data.shareholders);
-            state.dividends = parseSheetData(data.dividends);
+            loadLocalData();
             updateAll();
         }
 
-        // រក្សាទុកទិន្នន័យទៅ Sheet
-        async function saveData(sheetName, action, data) {
-            await fetch(API_URL, {
-                method: 'POST',
-                body: JSON.stringify({ sheet: sheetName, action: action, rows: data })
-            });
-            fetchData();
+        async function saveData() {
+            persistState();
+            updateAll();
         }
 
-        window.onload = function() {
-            fetchData();
-        // Initialize App
-        window.onload = function() {
+        document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('report-date').textContent = new Date().toLocaleDateString('en-GB');
+            document.getElementById('tx-date').value = new Date().toISOString().split('T')[0];
+            if (apiKey) document.getElementById('api-key-input').value = apiKey;
+            loadLocalData();
             toggleFormStyles();
             updateAll();
-        };
+        });
 
         // UI Tabs Management
         function switchTab(tabId) {
@@ -673,6 +738,7 @@
             updateDashboardStats();
             updateCharts();
             updateReports();
+            persistState();
         }
 
         // ======================= DASHBOARD & STATS =======================
@@ -1111,7 +1177,7 @@
             }
 
             try {
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
